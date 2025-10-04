@@ -47,13 +47,34 @@ export const calculateCarbonFootprint = async (answers: QuizAnswers): Promise<Ca
   }
 };
 
-export const getRecyclingInfo = async (location: string, item: string): Promise<RecyclingResult> => {
-  const prompt = `What are the specific recycling rules for a "${item}" in "${location}"? Provide a clear, concise guide. If it's not recyclable, explain the correct disposal method. Mention any important details, like needing to be clean or separated. Use up-to-date web search results to provide the most accurate information possible.`;
+export const getRecyclingInfo = async (
+  location: string, 
+  item?: string,
+  image?: { mimeType: string, data: string }
+): Promise<RecyclingResult> => {
+
+  if (!item && !image) {
+    throw new Error("Either an item or an image must be provided.");
+  }
+
+  let contents;
+
+  if (image) {
+    const prompt = `Based on the attached image and my location in "${location}", what are the specific recycling rules for the item shown? Please identify the item in your response. Provide a clear, concise guide. If it's not recyclable, explain the correct disposal method. Mention any important details, like needing to be clean or separated. Use up-to-date web search results to provide the most accurate information possible.`;
+    contents = {
+      parts: [
+        { inlineData: { mimeType: image.mimeType, data: image.data } },
+        { text: prompt }
+      ]
+    };
+  } else {
+    contents = `What are the specific recycling rules for a "${item}" in "${location}"? Provide a clear, concise guide. If it's not recyclable, explain the correct disposal method. Mention any important details, like needing to be clean or separated. Use up-to-date web search results to provide the most accurate information possible.`;
+  }
 
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: prompt,
+      contents: contents,
       config: {
         tools: [{ googleSearch: {} }],
       },

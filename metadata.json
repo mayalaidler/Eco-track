@@ -1,5 +1,7 @@
 {
   "name": "EcoTrack: Your Sustainability Companion",
-  "description": "An interactive web application to help you understand and reduce your environmental impact. Calculate your carbon footprint with a personalized quiz and get location-specific recycling guidance.",
-  "requestFramePermissions": []
+  "description": "An interactive web application to help you understand and reduce your environmental impact. Calculate your carbon footprint with a personalized quiz and get location-specific recycling guidance by text or by uploading an image.",
+  "requestFramePermissions": [
+    "camera"
+  ]
 }
