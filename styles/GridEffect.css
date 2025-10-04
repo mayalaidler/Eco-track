@@ -1,0 +1,36 @@
+.grid-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(14, 1fr); 
+  grid-template-rows: repeat(14, 1fr);    
+  z-index: 0;
+  background-size: 10px 10px;
+}
+
+.grid-tile {
+  position: relative;
+}
+
+.grid-tile::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 0.3rem;
+  width: 0.3rem;
+  border-radius: 50%;
+  background: #83c69c;
+  transition: 500ms linear all;
+  box-shadow: 0 0 10px #A9C9FF, 0 0 20px #FFBBEC;
+}
+
+.grid-tile:hover::before {
+  height: 3rem;
+  width: 3rem;
+  transition: 70ms linear all;
+}
