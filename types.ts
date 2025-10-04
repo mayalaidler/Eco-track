@@ -4,7 +4,8 @@ export enum AppView {
   RECYCLING,
   ECO_ACTIONS,
   CHART,
-  AIR_QUALITY
+  AIR_QUALITY,
+  LOCAL_RESOURCES
 }
 
 export interface QuizQuestion {
@@ -66,4 +67,18 @@ export interface FootprintData {
 export interface CO2DataPoint {
   co2: number; // in parts per million (ppm)
   timestamp: number;
+}
+
+export interface LocalResource {
+  name: string;
+  address: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface LocalResourcesResult {
+  recyclingCenters: LocalResource[];
+  thriftStores: LocalResource[];
+  farmersMarkets: LocalResource[];
 }
