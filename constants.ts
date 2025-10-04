@@ -14,7 +14,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     question: "How many round-trip flights do you take per year?",
-    options: ["None", "1-2 short-haul flights", "1-2 long-haul flights", "More than 2 long-haul flights"],
+    options: ["None", "1-2 short domestic flights", "1-2 long flights", "More than 2 long-haul flights"],
     key: "flights",
   },
   {
