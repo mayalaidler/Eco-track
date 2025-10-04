@@ -7,6 +7,9 @@ import Footer from './components/Footer';
 import { AppView } from './types';
 import EcoActions from './components/EcoActions';
 import AirQualityChart from './components/Chart';
+import LocalResources from './components/LocalResources';
+
+
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.HOME);
@@ -26,6 +29,8 @@ const App: React.FC = () => {
         return <EcoActions onBack={() => navigateTo(AppView.HOME)} />;
       case AppView.AIR_QUALITY:
         return <AirQualityChart onBack={() => navigateTo(AppView.HOME)} />;
+      case AppView.LOCAL_RESOURCES:
+        return <LocalResources onBack={() => navigateTo(AppView.HOME)} />;
       case AppView.HOME:
       default:
         return <HomePage onNavigate={navigateTo} />;

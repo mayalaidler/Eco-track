@@ -26,6 +26,14 @@ const FeatureCard: React.FC<{
   </div>
 );
 
+
+const MapPinIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+
 const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   return (
       <div className="text-center p-10 animate-fadeInUp">
@@ -74,6 +82,15 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               icon={<img src="https://media.lordicon.com/icons/wired/gradient/812-wind.gif" width="80" height="80" />}
               onClick={() => onNavigate(AppView.AIR_QUALITY)}
             />
+        </div>
+        <div className="animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
+        <FeatureCard
+          title="Find Local Resources"
+          description="Locate nearby recycling centers, thrift stores, and farmer's markets to support your sustainable lifestyle."
+          buttonText="Explore Now"
+          icon={<MapPinIcon />}
+          onClick={() => onNavigate(AppView.LOCAL_RESOURCES)}
+        />
         </div>
       </div>
     </div>
