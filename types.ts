@@ -1,8 +1,8 @@
-
 export enum AppView {
   HOME,
   QUIZ,
   RECYCLING,
+  ECO_ACTIONS,
 }
 
 export interface QuizQuestion {
@@ -35,4 +35,22 @@ export interface GroundingChunk {
 export interface RecyclingResult {
   info: string;
   sources: GroundingChunk[];
+}
+
+export interface EcoAction {
+  id: string;
+  text: string;
+  points: number;
+  analysis: string;
+}
+
+export interface LeaderboardEntry {
+  name: string;
+  score: number;
+  isUser?: boolean;
+}
+
+export interface EcoActionResult {
+  points: number;
+  analysis: string;
 }

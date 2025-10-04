@@ -1,30 +1,19 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { QuizAnswers, CarbonFootprintResult, RecyclingResult, GroundingChunk } from '../types';
+import type { QuizAnswers, CarbonFootprintResult, RecyclingResult, GroundingChunk, EcoActionResult } from '../types';
 
-const apiKey = import.meta.env.VITE_API_KEY;
-console.log("Loaded API Key:", apiKey);
+const API_KEY = import.meta.env.VITE_API_KEY;
 
-export const isApiKeyConfigured = (): boolean => !!apiKey;
+if (!API_KEY) {
+  throw new Error("API_KEY environment variable not set");
+}
 
-let ai: GoogleGenAI | null = null;
-
-const getAiInstance = (): GoogleGenAI => {
-  if (ai) {
-    return ai;
-  }
-  if (!apiKey) {
-    throw new Error("API Key is not configured. Cannot initialize Gemini AI.");
-  }
-  ai = new GoogleGenAI({ apiKey });
-  return ai;
-};
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export const calculateCarbonFootprint = async (answers: QuizAnswers): Promise<CarbonFootprintResult> => {
   const prompt = `Based on the following lifestyle answers, act as a carbon footprint calculation expert. Calculate the user's estimated annual carbon footprint in tonnes of CO2 equivalent. Provide a brief analysis of their biggest impact areas. Offer 3 actionable tips for reduction based on their specific answers. Format your response as a valid JSON object. Answers: ${JSON.stringify(answers)}`;
 
   try {
-    const aiInstance = getAiInstance();
-    const response = await aiInstance.models.generateContent({
+    const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
@@ -52,12 +41,8 @@ export const calculateCarbonFootprint = async (answers: QuizAnswers): Promise<Ca
     
     return result;
 
-    // FIX: Add type 'any' to the catch clause variable to resolve "Cannot find name 'error'" errors.
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error calculating carbon footprint:", error);
-    if (error instanceof Error && error.message.includes("API Key is not configured")) {
-        throw error;
-    }
     throw new Error("Failed to get a valid calculation from the AI. Please try again.");
   }
 };
@@ -66,8 +51,7 @@ export const getRecyclingInfo = async (location: string, item: string): Promise<
   const prompt = `What are the specific recycling rules for a "${item}" in "${location}"? Provide a clear, concise guide. If it's not recyclable, explain the correct disposal method. Mention any important details, like needing to be clean or separated. Use up-to-date web search results to provide the most accurate information possible.`;
 
   try {
-    const aiInstance = getAiInstance();
-    const response = await aiInstance.models.generateContent({
+    const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
@@ -83,12 +67,45 @@ export const getRecyclingInfo = async (location: string, item: string): Promise<
     }
     
     return { info, sources };
-    // FIX: Add type 'any' to the catch clause variable to resolve "Cannot find name 'error'" errors.
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching recycling info:", error);
-    if (error instanceof Error && error.message.includes("API Key is not configured")) {
-        throw error;
-    }
     throw new Error("Failed to get recycling information from the AI. Please check your inputs and try again.");
   }
+};
+
+export const analyzeEcoAction = async (action: string): Promise<EcoActionResult> => {
+    const prompt = `A user has performed the following sustainable action: "${action}".
+    Act as an eco-impact analyst. Evaluate this action and provide:
+    1. A point score between 5 and 50, reflecting its positive environmental impact. Higher impact actions get more points.
+    2. A brief, one-sentence, encouraging analysis of why this action is helpful.
+    
+    Format your response as a valid JSON object.`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        points: { type: Type.NUMBER, description: "Point score from 5 to 50." },
+                        analysis: { type: Type.STRING, description: "Brief, encouraging analysis." },
+                    },
+                    required: ["points", "analysis"],
+                }
+            }
+        });
+
+        const text = response.text.trim();
+        const jsonString = text.replace(/^```json\n?/, '').replace(/```$/, '');
+        const result = JSON.parse(jsonString);
+
+        return result;
+
+    } catch (error) {
+        console.error("Error analyzing eco action:", error);
+        throw new Error("Failed to analyze the action. Please try again.");
+    }
 };
