@@ -29,6 +29,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen font-sans text-brand-dark">
+      {/* FIX: Removed ApiKeyPrompt to adhere to @google/genai guidelines. The API key must be configured via environment variables. */}
       <Header onHomeClick={() => navigateTo(AppView.HOME)} />
       <main className="flex-grow container mx-auto px-4 py-8">
         {renderView()}
