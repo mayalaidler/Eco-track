@@ -13,7 +13,7 @@ const FeatureCard: React.FC<{
   icon: React.ReactNode;
   onClick: () => void;
  }> = ({ title, description, buttonText, icon, onClick }) => (
-  <div className="group bg-white backdrop-blur-xl border border-white/20 p-8 rounded-2xl shadow-lg flex flex-col items-center text-center transform hover:scale-105 transition-all duration-300 h-full hover:shadow-2xl hover:shadow-green-500/20">
+  <div className="group bg-white backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-lg flex flex-col items-center text-center transform hover:scale-105 transition-all duration-300 h-full hover:shadow-2xl hover:shadow-green-500/20">
     <div className="mb-4 h-20 w-20 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">{icon}</div>
     <h3 className="text-2xl font-Cambria font-bold mb-2">{title}</h3>
     <p className="text-brand-gray font-Cambria mb-10 flex-grow">{description}</p>
@@ -51,7 +51,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               title="Carbon Footprint Calculator"
               description="Take a quick lifestyle quiz to get a personalized estimate of your carbon footprint and discover actionable tips to reduce it."
               buttonText="Start Quiz"
-              icon={<img src="https://content.presentermedia.com/content/animsp/00000000/476/green_footsteps_walking_md_nwm_v2.gif" width ="80" height = "80" alt="Animated footprint icon" />}
+              icon={<img src="https://media.istockphoto.com/id/1441625773/vector/co2-footprint-vector-icon.jpg?s=612x612&w=0&k=20&c=HrPur_ku2kgpSzCoKSNEmqWONQogsZFYP0M7z0z9Js0=" width ="70" height = "120" alt="Animated footprint icon" />}
               onClick={() => onNavigate(AppView.QUIZ)}
             />
         </div>
@@ -69,7 +69,7 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               title="Eco Actions Tracker"
               description="Log your sustainable actions, earn points for your positive impact, and see how you rank on the community leaderboard."
               buttonText="Log Action"
-              icon={<img src="https://cdn.dribbble.com/userupload/11000399/file/original-708ad935f49a6e06679dde30df7896cb.gif" className="w-20 h-20" alt="Animated chart icon" height = "50" width ="100"/>}
+              icon={<img src="https://cdn-icons-gif.flaticon.com/15374/15374834.gif" className="w-20 h-20" alt="Animated chart icon" height = "50" width ="100"/>}
 
               onClick={() => onNavigate(AppView.ECO_ACTIONS)}
             />
