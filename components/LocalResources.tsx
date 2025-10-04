@@ -134,19 +134,63 @@ const LocalResources: React.FC<LocalResourcesProps> = ({ onBack }) => {
     }
   }, [resources, mapLoaded]);
 
-  const fetchResources = async (location: string) => {
+const fetchResources = async (location: string) => {
     setIsLoading(true);
     setError(null);
     setResources(null);
+  
     try {
       const result = await findLocalResources(location);
-      setResources(result);
+      console.log('API result:', result); // <-- see exactly what the API returns
+  
+      // Check if the API returned expected keys
+      const hasValidData =
+        result &&
+        (result.recyclingCenters?.length > 0 ||
+          result.thriftStores?.length > 0 ||
+          result.farmersMarkets?.length > 0);
+  
+      if (hasValidData) {
+        setResources(result);
+      } else {
+        console.warn('API returned empty or malformed data, falling back to mock.');
+        // Fallback mock data
+        const mockResult: LocalResourcesResult = {
+          recyclingCenters: [
+            { name: 'Recycling Center 1', address: '123 Green St', description: 'Accepts plastic, glass, paper', latitude: 40.7128, longitude: -74.0060 },
+          ],
+          thriftStores: [
+            { name: 'Thrift Store 1', address: '456 Vintage Ave', description: 'Clothes and furniture', latitude: 40.7138, longitude: -74.0050 },
+          ],
+          farmersMarkets: [
+            { name: 'Farmers Market 1', address: '789 Fresh Ln', description: 'Local produce', latitude: 40.7148, longitude: -74.0040 },
+          ],
+        };
+        setResources(mockResult);
+      }
     } catch (err: any) {
+      console.error('Error fetching resources:', err);
       setError(err.message || 'Unknown error fetching resources.');
+  
+      // Optional: fallback mock data even on fetch failure
+      const mockResult: LocalResourcesResult = {
+        recyclingCenters: [
+          { name: 'Recycling Center 1', address: '123 Green St', description: 'Accepts plastic, glass, paper', latitude: 40.7128, longitude: -74.0060 },
+        ],
+        thriftStores: [
+          { name: 'Thrift Store 1', address: '456 Vintage Ave', description: 'Clothes and furniture', latitude: 40.7138, longitude: -74.0050 },
+        ],
+        farmersMarkets: [
+          { name: 'Farmers Market 1', address: '789 Fresh Ln', description: 'Local produce', latitude: 40.7148, longitude: -74.0040 },
+        ],
+      };
+      setResources(mockResult);
     } finally {
       setIsLoading(false);
     }
   };
+  
+  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
