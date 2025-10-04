@@ -3,6 +3,8 @@ export enum AppView {
   QUIZ,
   RECYCLING,
   ECO_ACTIONS,
+  CHART,
+  AIR_QUALITY
 }
 
 export interface QuizQuestion {
@@ -53,4 +55,15 @@ export interface LeaderboardEntry {
 export interface EcoActionResult {
   points: number;
   analysis: string;
+}
+
+export interface FootprintData {
+  date: string;
+  user: number;
+  global: number;
+}
+
+export interface CO2DataPoint {
+  co2: number; // in parts per million (ppm)
+  timestamp: number;
 }

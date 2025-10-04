@@ -1,8 +1,9 @@
 interface ImportMetaEnv {
   readonly VITE_API_KEY: string;
-  // add more vars here...
+  readonly VITE_AMBEE_API_KEY: string;
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+

@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { QuizAnswers, CarbonFootprintResult, RecyclingResult, GroundingChunk, EcoActionResult } from '../types';
+import type { QuizAnswers, CarbonFootprintResult, RecyclingResult, GroundingChunk, EcoActionResult, CO2DataPoint } from '../types';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -130,3 +130,39 @@ export const analyzeEcoAction = async (action: string): Promise<EcoActionResult>
         throw new Error("Failed to analyze the action. Please try again.");
     }
 };
+
+// --- Real-time Air Quality Service ---
+// This is a mock service. In a real application, you would fetch from the Ambee API using your key.
+// const AMBEE_API_KEY = process.env.AMBEE_API_KEY;
+// const API_ENDPOINT = 'https://api.ambeedata.com/latest/by-lat-lng';
+
+let lastCO2Value = 420; // Starting baseline for CO2 ppm
+
+export const getRealTimeCO2 = async (lat: number, lon: number): Promise<CO2DataPoint> => {
+    console.log(`Fetching mock CO2 data for lat: ${lat}, lon: ${lon}`);
+
+    // In a real app, you would make a network request:
+    // const response = await fetch(`${API_ENDPOINT}?lat=${lat}&lng=${lon}`, {
+    //   headers: { 'x-api-key': AMBEE_API_KEY, 'Content-type': 'application/json' }
+    // });
+    // if (!response.ok) { throw new Error('Failed to fetch air quality data.'); }
+    // const data = await response.json();
+    // return { co2: data.stations[0].CO2, timestamp: Date.now() };
+
+    // Mock implementation for demonstration:
+    return new Promise(resolve => {
+        setTimeout(() => {
+            // Fluctuate the CO2 value slightly to simulate real-time changes
+            const fluctuation = (Math.random() - 0.5) * 2; // between -1 and 1
+            lastCO2Value += fluctuation;
+            if (lastCO2Value < 400) lastCO2Value = 400;
+            if (lastCO2Value > 440) lastCO2Value = 440;
+
+            resolve({
+                co2: parseFloat(lastCO2Value.toFixed(2)),
+                timestamp: Date.now(),
+            });
+        }, 500 + Math.random() * 500); // Simulate network latency
+    });
+  
+  }

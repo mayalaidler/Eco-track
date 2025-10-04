@@ -5,7 +5,8 @@ import RecyclingGuide from './components/RecyclingGuide';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { AppView } from './types';
-import EcoActions from './components/ecoActions';
+import EcoActions from './components/EcoActions';
+import AirQualityChart from './components/Chart';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.HOME);
@@ -23,6 +24,8 @@ const App: React.FC = () => {
         return <RecyclingGuide onBack={() => navigateTo(AppView.HOME)} />;
       case AppView.ECO_ACTIONS:
         return <EcoActions onBack={() => navigateTo(AppView.HOME)} />;
+      case AppView.AIR_QUALITY:
+        return <AirQualityChart onBack={() => navigateTo(AppView.HOME)} />;
       case AppView.HOME:
       default:
         return <HomePage onNavigate={navigateTo} />;
