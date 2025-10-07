@@ -80,23 +80,78 @@ const LocalResources: React.FC<LocalResourcesProps> = ({ onBack }) => {
     };
   }, [mapsApiKey]);
 
-  // Update markers whenever resources change
-  useEffect(() => {
-    if (!resources || !mapLoaded || !mapInstanceRef.current) return;
+//   // Update markers whenever resources change
+//   useEffect(() => {
+//     if (!resources || !mapLoaded || !mapInstanceRef.current) return;
 
+//     // Clear old markers
+//     markersRef.current.forEach(marker => marker.setMap(null));
+//     markersRef.current = [];
+
+//     const bounds = new (window as any).google.maps.LatLngBounds();
+
+//     const addMarkers = (data: LocalResource[], category: ResourceCategory) => {
+//       data.forEach(item => {
+//         if (!item.latitude || !item.longitude) return;
+
+//         const marker = new (window as any).google.maps.Marker({
+//           position: { lat: item.latitude, lng: item.longitude },
+//           map: mapInstanceRef.current,
+//           title: item.name,
+//           icon: {
+//             path: markerIcons[category].path,
+//             fillColor: markerIcons[category].fillColor,
+//             fillOpacity: 1,
+//             anchor: new (window as any).google.maps.Point(12, 12),
+//             strokeWeight: 0,
+//             scale: 1.5,
+//           },
+//         });
+
+//         marker.addListener('click', () => {
+//           infoWindowRef.current.setContent(`
+//             <div style="font-family:sans-serif;color:#1f2937;">
+//               <h4 style="font-weight:bold">${item.name}</h4>
+//               <p style="font-size:0.85rem;color:#6b7280;">${item.address}</p>
+//               <p>${item.description}</p>
+//             </div>
+//           `);
+//           infoWindowRef.current.open(mapInstanceRef.current, marker);
+//         });
+
+//         markersRef.current.push(marker);
+//         bounds.extend({ lat: item.latitude, lng: item.longitude });
+//       });
+//     };
+
+//     addMarkers(resources.recyclingCenters, 'recyclingCenters');
+//     addMarkers(resources.thriftStores, 'thriftStores');
+//     addMarkers(resources.farmersMarkets, 'farmersMarkets');
+
+//     if (markersRef.current.length > 0) {
+//       mapInstanceRef.current.fitBounds(bounds);
+//       if (markersRef.current.length === 1) mapInstanceRef.current.setZoom(14);
+//     }
+//   }, [resources, mapLoaded]);
+
+  useEffect(() => {
+    if (!resources || !mapLoaded || !mapInstanceRef.current) return; // guard
+  
     // Clear old markers
     markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
-
+  
     const bounds = new (window as any).google.maps.LatLngBounds();
-
+  
     const addMarkers = (data: LocalResource[], category: ResourceCategory) => {
+      if (!mapInstanceRef.current || !(window as any).google?.maps) return; // extra safety
+  
       data.forEach(item => {
         if (!item.latitude || !item.longitude) return;
-
+  
         const marker = new (window as any).google.maps.Marker({
           position: { lat: item.latitude, lng: item.longitude },
-          map: mapInstanceRef.current,
+          map: mapInstanceRef.current, // now guaranteed to exist
           title: item.name,
           icon: {
             path: markerIcons[category].path,
@@ -107,32 +162,35 @@ const LocalResources: React.FC<LocalResourcesProps> = ({ onBack }) => {
             scale: 1.5,
           },
         });
-
+  
         marker.addListener('click', () => {
-          infoWindowRef.current.setContent(`
-            <div style="font-family:sans-serif;color:#1f2937;">
-              <h4 style="font-weight:bold">${item.name}</h4>
-              <p style="font-size:0.85rem;color:#6b7280;">${item.address}</p>
-              <p>${item.description}</p>
-            </div>
-          `);
-          infoWindowRef.current.open(mapInstanceRef.current, marker);
+          if (infoWindowRef.current && mapInstanceRef.current) {
+            infoWindowRef.current.setContent(`
+              <div style="font-family:sans-serif;color:#1f2937;">
+                <h4 style="font-weight:bold">${item.name}</h4>
+                <p style="font-size:0.85rem;color:#6b7280;">${item.address}</p>
+                <p>${item.description}</p>
+              </div>
+            `);
+            infoWindowRef.current.open(mapInstanceRef.current, marker);
+          }
         });
-
+  
         markersRef.current.push(marker);
         bounds.extend({ lat: item.latitude, lng: item.longitude });
       });
     };
-
+  
     addMarkers(resources.recyclingCenters, 'recyclingCenters');
     addMarkers(resources.thriftStores, 'thriftStores');
     addMarkers(resources.farmersMarkets, 'farmersMarkets');
-
-    if (markersRef.current.length > 0) {
+  
+    if (markersRef.current.length > 0 && mapInstanceRef.current) {
       mapInstanceRef.current.fitBounds(bounds);
       if (markersRef.current.length === 1) mapInstanceRef.current.setZoom(14);
     }
   }, [resources, mapLoaded]);
+  
 
 const fetchResources = async (location: string) => {
     setIsLoading(true);
@@ -152,6 +210,7 @@ const fetchResources = async (location: string) => {
   
       if (hasValidData) {
         setResources(result);
+        setActiveTab('recyclingCenters');
       } else {
         console.warn('API returned empty or malformed data, falling back to mock.');
         // Fallback mock data
@@ -243,54 +302,72 @@ const fetchResources = async (location: string) => {
     { key: 'farmersMarkets', label: 'Farmer\'s Markets' },
   ];
 
-  return (
-    <div className="max-w-4xl mx-auto">
-      <button onClick={onBack} className="text-green-600 mb-4">&larr; Back to Home</button>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={locationInput}
-          onChange={e => setLocationInput(e.target.value)}
-          placeholder="Enter city, state, or zip"
-          className="border p-2 flex-grow"
-        />
-        <button type="submit" className="bg-green-600 text-white px-4 py-2">Search</button>
-        <button type="button" onClick={handleGeolocation} className="bg-gray-300 px-4 py-2">
-          Use Current Location
-        </button>
-      </form>
-
-      {error && <div className="text-red-600 mb-4">{error}</div>}
-      {!mapLoaded && !error && <div>Loading Google Map...</div>}
-      <div ref={mapRef} className="h-96 w-full rounded-lg shadow-md bg-gray-200 mb-4" />
-
-      {isLoading && <Spinner />}
-
-      {resources && !isLoading && (
-        <>
-          <div className="border-b mb-4">
-            <nav className="-mb-px flex space-x-4">
-              {tabs.map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`py-2 px-3 border-b-2 font-medium text-sm ${
-                    activeTab === tab.key
-                      ? 'border-green-600 text-green-700'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  {tab.label} ({resources[tab.key]?.length ?? 0})
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          {renderResourceList(resources[activeTab])}
-        </>
-      )}
-    </div>
+    return (
+        <div className="max-w-4xl mx-auto">
+          <button onClick={onBack} className="text-green-600 mb-4">
+            &larr; Back to Home
+          </button>
+      
+          {/* Search + Geolocation form */}
+          <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={locationInput}
+              onChange={e => setLocationInput(e.target.value)}
+              placeholder="Enter city, state, or zip"
+              className="border p-2 flex-grow"
+            />
+            <button type="submit" className="bg-green-600 text-white px-4 py-2">
+              Search
+            </button>
+            <button
+              type="button"
+              onClick={handleGeolocation}
+              className="bg-gray-300 px-4 py-2"
+            >
+              Use Current Location
+            </button>
+          </form>
+      
+          {/* Errors and loading messages */}
+          {error && <div className="text-red-600 mb-4">{error}</div>}
+          {!mapLoaded && !error && <div>Loading Google Map...</div>}
+          <div
+            ref={mapRef}
+            className="h-96 w-full rounded-lg shadow-md bg-gray-200 mb-4"
+          />
+      
+          {/* Spinner while fetching */}
+          {isLoading && <Spinner />}
+      
+          {/* --- Render results when available --- */}
+          {resources && (
+            <div className="animate-fadeInUp">
+              {/* Tabs */}
+              <div className="border-b mb-4">
+                <nav className="-mb-px flex space-x-4">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setActiveTab(tab.key)}
+                      className={`py-2 px-3 border-b-2 font-medium text-sm ${
+                        activeTab === tab.key
+                          ? 'border-green-600 text-green-700'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      {tab.label} ({resources[tab.key]?.length ?? 0})
+                    </button>
+                  ))}
+                </nav>
+              </div>
+      
+              {/* Resource list for selected tab */}
+              {renderResourceList(resources[activeTab])}
+            </div>
+          )}
+        </div>   
   );
 };
 
